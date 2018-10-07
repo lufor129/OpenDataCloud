@@ -49,8 +49,8 @@
             </v-list>
           </v-card>
         </v-flex>
-        <v-flex xs9>
-          <v-card style="float:left;margin:1rem" width="45%" v-for="(item,index) in filterData" :key="index" color="green darken-1" class="white--text">
+        <v-flex xs8>
+          <v-card style="float:left;margin:1%" width="48%" v-for="(item,index) in filterData" :key="index" color="green darken-1" class="white--text">
             <v-card-title primary-title>
               <div class="headline">{{item.資料集名稱}}</div> <br>
               <div>{{item['資料來源(部會單位)']}}</div>

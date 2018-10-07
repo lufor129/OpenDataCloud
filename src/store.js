@@ -9,7 +9,8 @@ export default new Vuex.Store({
     search:"",
     countys:[],
     result:[],
-    resultset:{}
+    resultset:{},
+    isLoading:false
   },
   mutations: {
     SEARCH(state, status){
@@ -23,9 +24,15 @@ export default new Vuex.Store({
     },
     RESULTSET(state, payload){
       state.resultset = payload;
-    }
+    },
+    LOADING(state, status){
+      state.isLoading = status;
+    },
   },
   actions: {
+    loading(context,status){
+      context.commit("LOADING",status);
+    },
     submitSearch(context, data){
       context.commit("SEARCH", data);
     },
@@ -33,12 +40,12 @@ export default new Vuex.Store({
       context.commit("COUNTYS", data);
     },
     getSearching(context,{search,countys}){
-      console.log(context.state.search);
+      context.commit("LOADING",true);
       axios.post(`${process.env.VUE_APP_API}/data/search`,{search:search,countys:countys}).then((response)=>{
-        console.log(response.data);
         context.commit("RESULT",response.data.result);
         context.commit("RESULTSET",response.data.dict);
+        context.commit("LOADING",false);
       })
-    }
+    },
   }
 })

@@ -1,5 +1,6 @@
 <template>
   <v-app>
+    <Loading :active.sync="isLoading"></Loading>
     <v-toolbar
       app
       :clipped-left="clipped"
@@ -49,6 +50,11 @@ export default {
       this.$store.dispatch("submitCountys",[]);
       this.$router.push({path:"/"});
     }
+  },
+  computed:{
+    isLoading() {
+      return this.$store.state.isLoading;
+    },
   }
 }
 </script>

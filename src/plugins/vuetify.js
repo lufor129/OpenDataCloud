@@ -17,6 +17,6 @@ Vue.use(Vuetify, {
   iconfont: 'md',
   lang: {
     locales: { zhHant },
-    current: 'zh-Hant'
+    current: 'zhHant'
   },
 })

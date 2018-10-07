@@ -57,7 +57,24 @@ export default{
   name:"wordcloud",
   data() {
     return {
-      words:[],
+      words:[
+        ["敬請",20],
+        ["稍等",81],
+        ["資料",72],
+        ["快要",120],
+        ["跑出來",64],
+        ["請您",76],
+        ["耐心",91],
+        ["等待",86],
+        ["真的",34],
+        ["非常",55],
+        ["抱歉",93],
+        ["五秒鐘",117],
+        ["即將",99],
+        ["完成",39],
+        ["十分",89],
+        ["感謝",55],
+      ],
       data:[],
       enter:{
         opacity: 0,
@@ -91,12 +108,14 @@ export default{
       select: [],
       selectNoun:"",
       relateword:[],
+      progress:undefined
     }
   },
   methods:{
     onWordClick:function(word){
       this.selectNoun  = word[0];
       const vm = this;
+      this.$store.dispatch("loading",true);
       this.$http.post(`${process.env.VUE_APP_API}/data/county`,{data:this.select,key:this.selectNoun}).then((response)=>{
         if(response.data.length>100){
           let temp = response.data;
@@ -108,6 +127,7 @@ export default{
         }
         vm.$http.post(`${process.env.VUE_APP_API}/data/keyword`,{key:this.selectNoun}).then((response)=>{
           vm.relateword = response.data;
+          this.$store.dispatch("loading",false);
         })
       })
     },
@@ -121,18 +141,22 @@ export default{
   },
   created(){
     const vm=this;
+    this.$store.dispatch("loading",true);
     this.$http.post(`${process.env.VUE_APP_API}/data/county`,{data:this.select}).then((response)=>{
       this.words = response.data;
+      this.$store.dispatch("loading",false);
     })
   },
   watch:{
     select:function(){
+      this.$store.dispatch("loading",true);
       this.$http.post(`${process.env.VUE_APP_API}/data/county`,{data:this.select}).then((response)=>{
         this.words = response.data;
         this.selectNoun = "";
         this.relateword = [];
+        this.$store.dispatch("loading",false);
       })
-    }
+    },
   }
 }
 </script>
