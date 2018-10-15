@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <v-layout align-center justify-center row>
+    <v-layout align-center justify-center row mb-3>
       <v-flex xs3 align-start>
         <v-card-text style="font-size:3rem" v-if="selectNoun.length!=0">{{selectNoun}}</v-card-text>
       </v-flex>
@@ -12,10 +12,23 @@
           multiple
           chips
           color="#0D47A1"
+          @input="changeselect"
         ></v-combobox>
       </v-flex>
       <v-flex  justify-center ml-5 xs2>
         <v-btn v-if="selectNoun!=''" color="indigo" large outline @click="searching">搜尋</v-btn>
+      </v-flex>
+    </v-layout>
+    <v-layout row justify-space-between v-if="relateword.length!=0">
+      <v-flex xs2>
+        <v-card dark>
+          <v-btn block dark large @click="relating(relateword[0],[])" color="deep-orange">{{relateword[0]}}</v-btn>
+        </v-card>
+      </v-flex>
+      <v-flex xs2>
+        <v-card dark>
+          <v-btn block dark large @click="relating(relateword[1],[])" color="deep-orange lighten-3">{{relateword[1]}}</v-btn>
+        </v-card>
       </v-flex>
     </v-layout>
     <div id="wordcloud">
@@ -34,18 +47,16 @@
 				</template>
       </vue-word-cloud>
     </div>
-    <v-layout row wrap v-if="relateword.length!=0">
-      <v-flex xs12 sm6 md3 order-md4 order-sm2>
-        <v-btn block dark large color="red darken-2">{{relateword[3]}}</v-btn>
+    <v-layout row justify-space-between v-if="relateword.length!=0">
+      <v-flex xs2>
+        <v-card dark>
+          <v-btn block dark large @click="relating(relateword[2],[])" color="red darken-2">{{relateword[2]}}</v-btn>
+        </v-card>
       </v-flex>
-      <v-flex xs12 sm6 md3 order-md3 order-sm1>
-        <v-btn block dark large color="deep-orange lighten-1">{{relateword[2]}}</v-btn>
-      </v-flex>
-      <v-flex xs12 sm6 md3 order-md2 order-sm4>
-        <v-btn block dark large color="deep-orange lighten-3">{{relateword[1]}}</v-btn>
-      </v-flex>
-      <v-flex xs12 sm6 md3 order-md1 order-sm3>
-        <v-btn block dark large color="deep-orange">{{relateword[0]}}</v-btn>
+      <v-flex xs2>
+        <v-card dark>
+          <v-btn block dark large @click="relating(relateword[3],[])" color="deep-orange lighten-1">{{relateword[3]}}</v-btn>
+        </v-card>
       </v-flex>
     </v-layout>
   </v-container>
@@ -80,8 +91,10 @@ export default{
         opacity: 0,
         transform: 'scale3d(0.1, 0.1, 1)'
       },
+      unclick:[
+        "敬請","稍等","資料","快要","跑出來","請您","耐心","等待","真的","非常","抱歉","五秒鐘","即將","完成","十分","感謝"
+      ],
       items: [
-          "行政院",
           "臺北",
           "新北",
           "桃園",
@@ -108,16 +121,38 @@ export default{
       select: [],
       selectNoun:"",
       relateword:[],
-      progress:undefined
+      relatecolor:[
+        "red darken-2",
+        "deep-orange lighten-1",
+        "deep-orange lighten-3",
+        "deep-orange"
+      ]
     }
   },
   methods:{
     onWordClick:function(word){
-      this.selectNoun  = word[0];
-      const vm = this;
+      if(this.unclick.includes(word[0])){
+        console.log(word[0]);
+      }
+      else{
+        this.relating(word[0],this.select);
+      }
+    },
+    searching:function(){
+      if(this.selectNoun!=''){
+        this.$store.dispatch("submitSearch",this.selectNoun);
+        this.$store.dispatch("submitCountys",this.select);
+        this.$router.push({path:"/search"})
+      }
+    },
+    relating:function(item,selectArr){
       this.$store.dispatch("loading",true);
+      this.select=selectArr;
+      this.selectNoun=item;
+      const vm = this;
       this.$http.post(`${process.env.VUE_APP_API}/data/county`,{data:this.select,key:this.selectNoun}).then((response)=>{
-        if(response.data.length>100){
+        if(response.data.length>80){
+          console.log(response.data.length);
           let temp = response.data;
           vm.words=temp.filter(function(item){
             return item[1]<200 && item[1]>7;
@@ -131,13 +166,15 @@ export default{
         })
       })
     },
-    searching:function(){
-      if(this.selectNoun!=''){
-        this.$store.dispatch("submitSearch",this.selectNoun);
-        this.$store.dispatch("submitCountys",this.select);
-        this.$router.push({path:"/search"})
-      }
-    }
+    changeselect:function(){
+      this.$store.dispatch("loading",true);
+      this.$http.post(`${process.env.VUE_APP_API}/data/county`,{data:this.select}).then((response)=>{
+        this.words = response.data;
+        this.selectNoun = "";
+        this.relateword = [];
+        this.$store.dispatch("loading",false);
+      })
+    },
   },
   created(){
     const vm=this;
@@ -147,17 +184,6 @@ export default{
       this.$store.dispatch("loading",false);
     })
   },
-  watch:{
-    select:function(){
-      this.$store.dispatch("loading",true);
-      this.$http.post(`${process.env.VUE_APP_API}/data/county`,{data:this.select}).then((response)=>{
-        this.words = response.data;
-        this.selectNoun = "";
-        this.relateword = [];
-        this.$store.dispatch("loading",false);
-      })
-    },
-  }
 }
 </script>
 
