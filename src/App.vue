@@ -41,7 +41,9 @@ export default {
   methods:{
     searching:function(){
       if(this.search!=''){
-        this.$store.dispatch("submitSearch",this.search);
+        let temp = [];
+        temp.push(this.search);
+        this.$store.dispatch("submitSearch",temp);
         this.$router.push({path:"/search"});
       }
     },

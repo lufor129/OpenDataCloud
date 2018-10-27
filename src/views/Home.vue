@@ -1,10 +1,12 @@
 <template>
   <v-container fluid>
-    <v-layout align-center justify-center row mb-3>
-      <v-flex xs3 align-start>
-        <v-card-text style="font-size:3rem" v-if="selectNoun.length!=0">{{selectNoun}}</v-card-text>
+    <v-layout align-center row mb-3>
+      <v-flex xs5>
+        <template v-for="(item,key) in secondSearch">
+          <v-btn large color="success" :key="key" @click="relating(item,select,flag=false,back=secondSearch.length-key)">{{item}}</v-btn> > 
+        </template>
       </v-flex>
-      <v-flex xs6 align-center>
+      <v-flex xs4 align-center>
         <v-combobox
           v-model="select"
           :items="items"
@@ -16,18 +18,18 @@
         ></v-combobox>
       </v-flex>
       <v-flex  justify-center ml-5 xs2>
-        <v-btn v-if="selectNoun!=''" color="indigo" large outline @click="searching">搜尋</v-btn>
+        <v-btn v-if="secondSearch.length>1" color="indigo" large outline @click="searching">列表</v-btn>
       </v-flex>
     </v-layout>
     <v-layout row justify-space-between v-if="relateword.length!=0">
       <v-flex xs2>
         <v-card dark>
-          <v-btn block dark large @click="relating(relateword[0],[])" color="deep-orange">{{relateword[0]}}</v-btn>
+          <v-btn block dark large @click="relating(relateword[0],[],flag=true)" color="deep-orange">{{relateword[0]}}</v-btn>
         </v-card>
       </v-flex>
       <v-flex xs2>
         <v-card dark>
-          <v-btn block dark large @click="relating(relateword[1],[])" color="deep-orange lighten-3">{{relateword[1]}}</v-btn>
+          <v-btn block dark large @click="relating(relateword[1],[],flag=true)" color="deep-orange lighten-3">{{relateword[1]}}</v-btn>
         </v-card>
       </v-flex>
     </v-layout>
@@ -50,12 +52,12 @@
     <v-layout row justify-space-between v-if="relateword.length!=0">
       <v-flex xs2>
         <v-card dark>
-          <v-btn block dark large @click="relating(relateword[2],[])" color="red darken-2">{{relateword[2]}}</v-btn>
+          <v-btn block dark large @click="relating(relateword[2],[],flag=true)" color="red darken-2">{{relateword[2]}}</v-btn>
         </v-card>
       </v-flex>
       <v-flex xs2>
         <v-card dark>
-          <v-btn block dark large @click="relating(relateword[3],[])" color="deep-orange lighten-1">{{relateword[3]}}</v-btn>
+          <v-btn block dark large @click="relating(relateword[3],[],flag=true)" color="deep-orange lighten-1">{{relateword[3]}}</v-btn>
         </v-card>
       </v-flex>
     </v-layout>
@@ -126,39 +128,54 @@ export default{
         "deep-orange lighten-1",
         "deep-orange lighten-3",
         "deep-orange"
+      ],
+      secondSearch:[
+        "縣市",
       ]
     }
   },
   methods:{
     onWordClick:function(word){
-      if(this.unclick.includes(word[0])){
+      if(this.unclick.includes(word[0]) || this.secondSearch.includes(word[0])){
         console.log(word[0]);
-      }
-      else{
+      }else{
+        this.secondSearch.push(word[0]);
         this.relating(word[0],this.select);
       }
     },
     searching:function(){
-      if(this.selectNoun!=''){
-        this.$store.dispatch("submitSearch",this.selectNoun);
+      if(this.secondSearch.length>1){
+        this.secondSearch.shift();
+        this.$store.dispatch("submitSearch",this.secondSearch);
         this.$store.dispatch("submitCountys",this.select);
         this.$router.push({path:"/search"})
       }
     },
-    relating:function(item,selectArr){
+    relating:function(item,selectArr,flag=false,back=0){
       this.$store.dispatch("loading",true);
       this.select=selectArr;
       this.selectNoun=item;
+      if(flag ==true){
+        this.secondSearch = [];
+        this.secondSearch.push("縣市");
+        this.secondSearch.push(this.selectNoun);
+      }
+      for(let i=0;i<back-1;i++){
+        this.secondSearch.pop();
+      }
+      let relate = flag == true ? true:false;
       const vm = this;
-      this.$http.post(`${process.env.VUE_APP_API}/data/county`,{data:this.select,key:this.selectNoun}).then((response)=>{
-        if(response.data.length>80){
-          console.log(response.data.length);
-          let temp = response.data;
+      this.$http.post(`${process.env.VUE_APP_API}/data/county`,{data:this.select,key:this.selectNoun,relate:relate,back:back}).then((response)=>{
+        if(vm.selectNoun == '縣市'){
+          vm.words = response.data.data;
+        }else if(response.data.data.length>80){
+          console.log(response.data.data.length);
+          let temp = response.data.data;
           vm.words=temp.filter(function(item){
             return item[1]<200 && item[1]>7;
           });
         }else{
-          vm.words = response.data;
+          vm.words = response.data.data;
         }
         vm.$http.post(`${process.env.VUE_APP_API}/data/keyword`,{key:this.selectNoun}).then((response)=>{
           vm.relateword = response.data;
@@ -167,20 +184,23 @@ export default{
       })
     },
     changeselect:function(){
+      const vm = this;
       this.$store.dispatch("loading",true);
+      this.secondSearch = [];
+      this.secondSearch.push("縣市")
       this.$http.post(`${process.env.VUE_APP_API}/data/county`,{data:this.select}).then((response)=>{
-        this.words = response.data;
-        this.selectNoun = "";
-        this.relateword = [];
-        this.$store.dispatch("loading",false);
+        vm.words = response.data.data;
+        vm.selectNoun = "";
+        vm.relateword = [];
+        vm.$store.dispatch("loading",false);
       })
-    },
+    }
   },
   created(){
     const vm=this;
     this.$store.dispatch("loading",true);
     this.$http.post(`${process.env.VUE_APP_API}/data/county`,{data:this.select}).then((response)=>{
-      this.words = response.data;
+      this.words = response.data.data;
       this.$store.dispatch("loading",false);
     })
   },

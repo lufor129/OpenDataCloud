@@ -5,7 +5,7 @@
         <v-flex xs3>
           <v-card>
             <v-toolbar color="teal" dark>
-              <v-toolbar-title class="text-xs-center">資料來源 : {{Search}}</v-toolbar-title>
+              <v-toolbar-title class="text-xs-center">資料來源 : </v-toolbar-title>
             </v-toolbar>
             <v-list >
               <v-list-tile @click="change('')">
