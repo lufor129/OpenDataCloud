@@ -6,6 +6,9 @@
           <v-btn large color="success" :key="key" @click="relating(item,select,flag=false,back=secondSearch.length-key)">{{item}}</v-btn> > 
         </template>
       </v-flex>
+      <v-flex  xs2>
+        <h2>目前共: {{dataNum}} 筆</h2>
+      </v-flex>
       <v-flex xs4 align-center>
         <v-combobox
           v-model="select"
@@ -17,7 +20,7 @@
           @input="changeselect"
         ></v-combobox>
       </v-flex>
-      <v-flex  justify-center ml-5 xs2>
+      <v-flex  justify-center ml-5 xs1>
         <v-btn v-if="secondSearch.length>1" color="indigo" large outline @click="searching">列表</v-btn>
       </v-flex>
     </v-layout>
@@ -34,7 +37,7 @@
       </v-flex>
     </v-layout>
     <div id="wordcloud">
-      <vue-word-cloud :words="words" :color="([, weight]) => weight > 100 ? '#74482a' : weight > 40 ? '#d1b022' : '#31a50d'"  :enter-animation="enter">
+      <vue-word-cloud :words="words" :color="([, weight]) => weight > 100 ? '#74482a' : weight > 50 ? '#d1b022' : weight > 20 ? '#461e47' :'#31a50d'"  :enter-animation="enter">
         <template slot-scope="props">
 					<v-tooltip top>
 						<div
@@ -131,7 +134,8 @@ export default{
       ],
       secondSearch:[
         "縣市",
-      ]
+      ],
+      dataNum:0
     }
   },
   methods:{
@@ -177,6 +181,10 @@ export default{
         }else{
           vm.words = response.data.data;
         }
+        vm.dataNum = response.data.dataNum;
+        if(this.dataNum < 20){
+          this.searching();
+        }
         vm.$http.post(`${process.env.VUE_APP_API}/data/keyword`,{key:this.selectNoun}).then((response)=>{
           vm.relateword = response.data;
           this.$store.dispatch("loading",false);
@@ -200,8 +208,9 @@ export default{
     const vm=this;
     this.$store.dispatch("loading",true);
     this.$http.post(`${process.env.VUE_APP_API}/data/county`,{data:this.select}).then((response)=>{
-      this.words = response.data.data;
-      this.$store.dispatch("loading",false);
+      vm.words = response.data.data;
+      vm.dataNum = response.data.dataNum;
+      vm.$store.dispatch("loading",false);
     })
   },
 }
