@@ -178,8 +178,14 @@ export default{
           vm.words=temp.filter(function(item){
             return item[1]<200 && item[1]>7;
           });
+          vm.words =vm.words.filter(function(item){
+            return !vm.secondSearch.includes(item[0]);
+          })
         }else{
           vm.words = response.data.data;
+          vm.words =vm.words.filter(function(item){
+            return !vm.secondSearch.includes(item[0]);
+          })
         }
         vm.dataNum = response.data.dataNum;
         if(this.dataNum < 20){
@@ -199,6 +205,7 @@ export default{
       this.$http.post(`${process.env.VUE_APP_API}/data/county`,{data:this.select}).then((response)=>{
         vm.words = response.data.data;
         vm.selectNoun = "";
+        vm.dataNum = response.data.dataNum;
         vm.relateword = [];
         vm.$store.dispatch("loading",false);
       })
