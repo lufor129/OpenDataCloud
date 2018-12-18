@@ -37,7 +37,7 @@
       </v-flex>
     </v-layout>
     <div id="wordcloud">
-      <vue-word-cloud :words="words" :color="([, weight]) => weight > 100 ? '#74482a' : weight > 50 ? '#d1b022' : weight > 20 ? '#461e47' :'#31a50d'"  :enter-animation="enter">
+      <vue-word-cloud :words="words" :color="([, weight]) => weight > 100 ? '#74482a' : weight > 50 ? '#d1b022' : weight > 20 ? '#461e47' :'#31a50d'"  :enter-animation="enter" font-family="Noto Sans TC">
         <template slot-scope="props">
 					<v-tooltip top>
 						<div
