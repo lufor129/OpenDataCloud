@@ -25,19 +25,43 @@
       </v-flex>
     </v-layout>
     <v-layout row justify-space-between v-if="relateword.length!=0">
-      <v-flex xs2>
-        <v-card dark>
-          <v-btn block dark large @click="relating(relateword[0],[],flag=true)" color="deep-orange">{{relateword[0]}}</v-btn>
-        </v-card>
+      <v-flex xs3 id="relatecloud">
+        <span class="relateword">{{relateword[0]}}</span>
+        <vue-word-cloud  :words="relatecloud[0]" :color="([, weight]) => randomColor()"  :enter-animation="enter">
+          <template slot-scope="props">
+            <v-tooltip top>
+              <div
+                slot="activator"
+                style="cursor: pointer;"
+                @click="relating(relateword[0],[],flag=true)"
+              >{{ props.text }}</div>
+              <div
+                style="text-align: center;"
+              >{{ props.text }}<br/>({{ props.weight }})</div>
+            </v-tooltip>
+          </template>
+        </vue-word-cloud>
       </v-flex>
-      <v-flex xs2>
-        <v-card dark>
-          <v-btn block dark large @click="relating(relateword[1],[],flag=true)" color="deep-orange lighten-3">{{relateword[1]}}</v-btn>
-        </v-card>
+      <v-flex xs3 id="relatecloud">
+        <span class="relateword">{{relateword[1]}}</span>
+        <vue-word-cloud  :words="relatecloud[1]" :color="([, weight]) => randomColor()"  :enter-animation="enter">
+          <template slot-scope="props">
+            <v-tooltip top>
+              <div
+                slot="activator"
+                style="cursor: pointer;"
+                @click="relating(relateword[1],[],flag=true)"
+              >{{ props.text }}</div>
+              <div
+                style="text-align: center;"
+              >{{ props.text }}<br/>({{ props.weight }})</div>
+            </v-tooltip>
+          </template>
+        </vue-word-cloud>
       </v-flex>
     </v-layout>
-    <div id="wordcloud">
-      <vue-word-cloud :words="words" :color="([, weight]) => weight > 100 ? '#74482a' : weight > 50 ? '#d1b022' : weight > 20 ? '#461e47' :'#31a50d'"  :enter-animation="enter" font-family="Noto Sans TC">
+    <div id="wordcloud"> 
+      <vue-word-cloud :words="words" :color="([, weight]) => randomColor()"  :enter-animation="enter" font-family="Noto Sans TC">
         <template slot-scope="props">
 					<v-tooltip top>
 						<div
@@ -53,22 +77,45 @@
       </vue-word-cloud>
     </div>
     <v-layout row justify-space-between v-if="relateword.length!=0">
-      <v-flex xs2>
-        <v-card dark>
-          <v-btn block dark large @click="relating(relateword[2],[],flag=true)" color="red darken-2">{{relateword[2]}}</v-btn>
-        </v-card>
+      <v-flex xs3 id="relatecloud">
+        <span class="relateword">{{relateword[2]}}</span>
+        <vue-word-cloud  :words="relatecloud[2]" :color="([, weight]) => randomColor()"  :enter-animation="enter">
+          <template slot-scope="props">
+            <v-tooltip top>
+              <div
+                slot="activator"
+                style="cursor: pointer;"
+                @click="relating(relateword[2],[],flag=true)"
+              >{{ props.text }}</div>
+              <div
+                style="text-align: center;"
+              >{{ props.text }}<br/>({{ props.weight }})</div>
+            </v-tooltip>
+          </template>
+        </vue-word-cloud>
       </v-flex>
-      <v-flex xs2>
-        <v-card dark>
-          <v-btn block dark large @click="relating(relateword[3],[],flag=true)" color="deep-orange lighten-1">{{relateword[3]}}</v-btn>
-        </v-card>
+      <v-flex xs3 id="relatecloud">
+        <span class="relateword">{{relateword[3]}}</span>
+        <vue-word-cloud  :words="relatecloud[3]" :color="([, weight]) => randomColor()"  :enter-animation="enter">
+          <template slot-scope="props">
+            <v-tooltip top>
+              <div
+                slot="activator"
+                style="cursor: pointer;"
+                @click="relating(relateword[3],[],flag=true)"
+              >{{ props.text }}</div>
+              <div
+                style="text-align: center;"
+              >{{ props.text }}<br/>({{ props.weight }})</div>
+            </v-tooltip>
+          </template>
+        </vue-word-cloud>
       </v-flex>
     </v-layout>
   </v-container>
 </template>
 
 <script>
-
 export default{
   name:"wordcloud",
   data() {
@@ -121,7 +168,7 @@ export default{
           "雲林",
           "嘉義縣",
           "花蓮",
-          "連江"
+          "連江",
       ],
       select: [],
       selectNoun:"",
@@ -135,7 +182,8 @@ export default{
       secondSearch:[
         "縣市",
       ],
-      dataNum:0
+      dataNum:0,
+      relatecloud:[]
     }
   },
   methods:{
@@ -172,19 +220,10 @@ export default{
       this.$http.post(`${process.env.VUE_APP_API}/data/county`,{data:this.select,key:this.selectNoun,relate:relate,back:back}).then((response)=>{
         if(vm.selectNoun == '縣市'){
           vm.words = response.data.data;
-        }else if(response.data.data.length>80){
-          console.log(response.data.data.length);
-          let temp = response.data.data;
-          vm.words=temp.filter(function(item){
-            return item[1]<200 && item[1]>7;
-          });
-          vm.words =vm.words.filter(function(item){
-            return !vm.secondSearch.includes(item[0]);
-          })
         }else{
           vm.words = response.data.data;
           vm.words =vm.words.filter(function(item){
-            return !vm.secondSearch.includes(item[0]);
+            return !vm.secondSearch.includes(item[0]) && item[1]>7;
           })
         }
         vm.dataNum = response.data.dataNum;
@@ -193,7 +232,11 @@ export default{
         }
         vm.$http.post(`${process.env.VUE_APP_API}/data/keyword`,{key:this.selectNoun}).then((response)=>{
           vm.relateword = response.data;
+          if(vm.selectNoun == '縣市') vm.relateword=[];
           this.$store.dispatch("loading",false);
+        })
+        vm.$http.post(`${process.env.VUE_APP_API}/data/smallcloud`,{key:this.selectNoun}).then((response)=>{
+          vm.relatecloud = response.data;
         })
       })
     },
@@ -209,6 +252,10 @@ export default{
         vm.relateword = [];
         vm.$store.dispatch("loading",false);
       })
+    },
+    randomColor:function(){
+      let color = '#'+Math.floor(Math.random()*16777215).toString(16);
+      return color;
     }
   },
   created(){
@@ -220,6 +267,7 @@ export default{
       vm.$store.dispatch("loading",false);
     })
   },
+
 }
 </script>
 
@@ -240,6 +288,16 @@ a {
   color: #42b983;
 }
 #wordcloud{
-  height:40rem;
+  height:30rem;
+  border: groove 2em transparent;
+}
+#relatecloud{
+  height:8rem;
+  margin:10px;
+}
+.relateword{
+  padding:3px;
+  font-size: 1rem;
+  border:red 2px solid;
 }
 </style>
