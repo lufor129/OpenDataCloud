@@ -60,8 +60,8 @@
         </vue-word-cloud>
       </v-flex>
     </v-layout>
-    <div id="wordcloud">
-      <vue-word-cloud :words="words" :color="([, weight]) => randomColor()"  :enter-animation="enter">
+    <div id="wordcloud"> 
+      <vue-word-cloud :words="words" :color="([, weight]) => randomColor()"  :enter-animation="enter" font-family="Noto Sans TC">
         <template slot-scope="props">
 					<v-tooltip top>
 						<div
