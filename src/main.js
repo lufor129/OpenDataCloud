@@ -15,8 +15,7 @@ import './registerServiceWorker'
 import 'roboto-fontface/css/roboto/roboto-fontface.css'
 import 'material-design-icons-iconfont/dist/material-design-icons.css'
 
-
-axios.defaults.headers.post['Content-Type'] = 'application/json';
+axios.defaults.withCredentials = true;
 Vue.use(VueAxios,axios);
 Vue.component(VueWorldCloud.name,VueWorldCloud);
 Vue.component('Loading', Loading);
