@@ -49,16 +49,23 @@
             </v-list>
           </v-card>
         </v-flex>
-        <v-flex xs8>
-          <v-card style="float:left;margin:1%" width="48%" v-for="(item,index) in filterData" :key="index" color="green darken-1" class="white--text">
-            <v-card-title primary-title>
-              <div class="headline">{{item.資料集名稱}}</div> <br>
-              <div>{{item['資料來源(部會單位)']}}</div>
-            </v-card-title>
-            <v-card-actions>
-              <v-btn flat dark>Find Out</v-btn>
-            </v-card-actions>
-          </v-card>
+        <v-flex xs9>
+          <v-flex>
+            <v-alert :value="true">
+              <span class="searchflow">{{SearchFlow}} </span>
+            </v-alert>
+          </v-flex>
+          <v-flex>
+            <v-card style="float:left;margin:1%" width="48%" v-for="(item,index) in filterData" :key="index" color="green darken-1" class="white--text">
+              <v-card-title primary-title>
+                <div class="headline">{{item.資料集名稱}}</div> <br>
+                <div>{{item['資料來源(部會單位)']}}</div>
+              </v-card-title>
+              <v-card-actions>
+                <v-btn flat dark>Find Out</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-flex>
         </v-flex>
       </v-layout>
     </v-container>
@@ -70,7 +77,7 @@ export default{
   name:"search",
   data(){
     return{
-      select:""
+      select:"",
     }
   },
   methods:{
@@ -106,7 +113,25 @@ export default{
         })
         return temp;
       }
+    },
+    SearchFlow(){
+      let str = "縣市  -->   ";
+      for(let i in this.Search){
+        if(i != this.Search.length-1){
+          str += this.Search[i] + "   -->   ";
+        }else{
+          str +=this.Search[i];
+        }
+      }
+      return str;
     }
   }
 }
 </script>
+
+<style scoped>
+.searchflow{
+  font-size: 20px;
+  font-weight: bold;
+}
+</style>

@@ -25,9 +25,9 @@
       </v-flex>
     </v-layout>
     <v-layout row justify-space-between v-if="relateword.length!=0">
-      <v-flex xs3 id="relatecloud">
-        <span class="relateword">{{relateword[0]}}</span>
-        <vue-word-cloud  :words="relatecloud[0]" :color="([, weight]) => randomColor()"  :enter-animation="enter">
+      <v-flex xs3 id="relatecloud" >
+        <span class="relateword" >{{relateword[0]}}</span>
+        <vue-word-cloud  :words="relatecloud[0]" :color="([, weight]) => randomColor()"  :enter-animation="enter" font-family="Noto Sans TC">
           <template slot-scope="props">
             <v-tooltip top>
               <div
@@ -44,7 +44,7 @@
       </v-flex>
       <v-flex xs3 id="relatecloud">
         <span class="relateword">{{relateword[1]}}</span>
-        <vue-word-cloud  :words="relatecloud[1]" :color="([, weight]) => randomColor()"  :enter-animation="enter">
+        <vue-word-cloud  :words="relatecloud[1]" :color="([, weight]) => randomColor()"  :enter-animation="enter" font-family="Noto Sans TC">
           <template slot-scope="props">
             <v-tooltip top>
               <div
@@ -79,7 +79,7 @@
     <v-layout row justify-space-between v-if="relateword.length!=0">
       <v-flex xs3 id="relatecloud">
         <span class="relateword">{{relateword[2]}}</span>
-        <vue-word-cloud  :words="relatecloud[2]" :color="([, weight]) => randomColor()"  :enter-animation="enter">
+        <vue-word-cloud  :words="relatecloud[2]" :color="([, weight]) => randomColor()"  :enter-animation="enter" font-family="Noto Sans TC">
           <template slot-scope="props">
             <v-tooltip top>
               <div
@@ -96,7 +96,7 @@
       </v-flex>
       <v-flex xs3 id="relatecloud">
         <span class="relateword">{{relateword[3]}}</span>
-        <vue-word-cloud  :words="relatecloud[3]" :color="([, weight]) => randomColor()"  :enter-animation="enter">
+        <vue-word-cloud  :words="relatecloud[3]" :color="([, weight]) => randomColor()"  :enter-animation="enter" font-family="Noto Sans TC">
           <template slot-scope="props">
             <v-tooltip top>
               <div
@@ -299,5 +299,8 @@ a {
   padding:3px;
   font-size: 1rem;
   border:red 2px solid;
+  font-size:18px;
+  font-family:Noto Sans TC;
+  margin:5px;
 }
 </style>
